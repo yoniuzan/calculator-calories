@@ -31,9 +31,16 @@ export class CalculatorCaloriesComponent implements OnInit, OnDestroy {
     public Carbohydrates: string;
     public Proteins: string;
 
+    public CaloriesSum: number = 0;
+    public FatsSum: number = 0;
+    public CarbohydratesSum: number = 0;
+    public ProteinsSum: number = 0;
+
     public isProccessing: boolean = false;
 
     public _table: Array<Ingredients> = [];
+
+    // public isAddItem
 
     constructor(private _calculatorService: CalculatorCaloriesService) {
         this._data$ = of([]);
@@ -48,6 +55,17 @@ export class CalculatorCaloriesComponent implements OnInit, OnDestroy {
         }));
 
         subscriptions.push(this._calculatorService.registerOnfoodTableChange().subscribe((res: Array<Ingredients>) => {
+            this.CaloriesSum = 0;
+            this.CarbohydratesSum = 0;
+            this.FatsSum = 0;
+            this.ProteinsSum = 0;
+            res.forEach(item => {
+                this.CaloriesSum += Number(item.Calories);
+                this.CarbohydratesSum += Number(item.Carbohydrates);
+                this.FatsSum += Number(item.Fats);
+                this.ProteinsSum += Number(item.Proteins);
+            })
+
             this._table = res;
         }));
 
@@ -84,7 +102,10 @@ export class CalculatorCaloriesComponent implements OnInit, OnDestroy {
     public async onAddItem(item: FoodItem): Promise<void> {
         item.IsAdded = true;
         item.Quantity = item.Quantity == 0 ? 100 : item.Quantity;
+
         await this._calculatorService.getItemIngredients(item);
+
+
 
     }
 
@@ -96,6 +117,12 @@ export class CalculatorCaloriesComponent implements OnInit, OnDestroy {
 
         this._calculatorService.removeItem(item);
 
+    }
+
+    public clear(): void {
+        this._data$.forEach(el => el.forEach(x => x.IsAdded = false));
+        this._calculatorService.clearTable();
+        this._table = [];
     }
 
     private clearSubscriptions(): void {

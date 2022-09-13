@@ -102,6 +102,10 @@ export class CalculatorCaloriesService {
         this._foodTableSubject.next(this._foodTable);
     }
 
+    public clearTable() : void {
+        this._foodTable = [];
+    }
+
 
     // private getImage(code: string): Promise<void> {
     //     return this.http.get(Api.Calculator.getImageByCode + `${code}` + ".json?hq=1", {}, Convert.GetIngredientsByCode).then(async (res: Ingredients) => {
