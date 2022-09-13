@@ -5,12 +5,24 @@
     flex-direction: column;
 
     .calculator-input {
-        height: 1.5rem;
+        background: #ff8c62;
+        border-radius: 5vw;
+        border: unset;
+        height: 8vw;
+        width: 40vw;
+        text-align: right;
+        padding-inline-start: 30px;
+        
+
+        @include md {
+            height: 45px;
+        }
     }
 
     .list {
         overflow-y: scroll;
         max-height: 200px;
+        margin-block-start: 15px;
 
         &.search {
             max-height: 45vw;
@@ -127,21 +139,51 @@
 
     td,
     th {
-        border: 1px solid #dddddd;
+        border: 2px solid black;
         padding: 8px;
         text-align: center;
+        font-size: 3vw;
 
+        @include md {
+            font-size: unset;
+        }
         .remove-icon {
             cursor: pointer;
+            border-radius: 50%;
         }
     }
 
-    tr:nth-child(even) {
-        background-color: #dddddd;
+    
+    td:first-child {
+        border: unset;
+        background-color: unset !important;
+    }
+
+    th:first-child {
+        border: unset;
+        background-color: unset !important;
+    }
+
+    tr:first-child {
+        border: unset;
+        background-color: unset !important;
+    }
+
+    .sum {
+        background: #ff8c62;
+
+        .empty {
+            border: unset;
+            background: white !important;
+        }
+        
     }
 
     button {
         width: 100px;
         margin-block-start: 10px;
+        background: black;
+        border-radius: 5vw;
+        margin-inline-start: 7.5vw;
     }
 }
