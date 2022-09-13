@@ -1,0 +1,144 @@
+@import "../../styles/responsive.scss";
+
+.calculator-main {
+    display: flex;
+    flex-direction: column;
+
+    .calculator-input {
+        height: 1.5rem;
+    }
+
+    .list {
+        overflow-y: scroll;
+        max-height: 200px;
+
+        &.search {
+            max-height: 45vw;
+
+            @include sm {
+                max-height: 220px;
+            }
+        }
+
+        .select-info {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            border: 0.1vw solid rgba(0, 0, 0, 0.2);
+            padding: 2vw 2vw;
+            color: black;
+            cursor: pointer;
+
+            &.selected {
+                color: #2196f3;
+                font-weight: 600;
+            }
+
+            .food-image {
+                width: 30px;
+                border-radius: 5em;
+                width: 50px;
+                height: 50px;
+                object-fit: cover;
+                object-position: top;
+                padding: 2px;
+                border: 1px solid #dcd7d3;
+                margin: 0 8px;
+
+                @include md {
+                    width: 96px;
+                    height: 96px;
+                }
+            }
+
+            .food-info {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+
+                .title {
+                    font-size: 5vw;
+                    line-height: 8vw;
+                    font-weight: bold;
+
+                    @include sm {
+                        font-size: 20px;
+                        line-height: 30px;
+                        font-weight: bold;
+                    }
+                }
+
+                .quantity-info {
+                    display: flex;
+                    align-items: center;
+                    width: 100%;
+
+                    .text {
+                        font-size: 4.5vw;
+
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+                        overflow: hidden;
+
+                        @include sm {
+                            font-size: 15px;
+                        }
+                    }
+
+                    .quantity-input {
+                        height: 1.5rem;
+                        width: 18vw;
+
+                        @include sm {
+                            width: 70px;
+                        }
+                    }
+
+                    .add-icon {
+                        margin-inline-end: auto;
+                        cursor: pointer;
+                    }
+                }
+            }
+        }
+        :hover {
+            background-color: #d5dce7;
+        }
+    }
+
+    .table-list {
+        margin-block-start: 30px;
+        max-height: 500px;
+
+        overflow-y: auto;
+    }
+
+    .spinner {
+        display: flex;
+        justify-content: center;
+        margin-block-start: 10px;
+    }
+
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td,
+    th {
+        border: 1px solid #dddddd;
+        padding: 8px;
+        text-align: center;
+
+        .remove-icon {
+            cursor: pointer;
+        }
+    }
+
+    tr:nth-child(even) {
+        background-color: #dddddd;
+    }
+
+   
+}
