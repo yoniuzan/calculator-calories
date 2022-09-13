@@ -84,10 +84,10 @@ export class CalculatorCaloriesService {
 
             res.Id = item.Id;
             res.Name = item.Description;
-            res.Calories = (item.Quantity / 100 * Number(res.Calories)).toString();
-            res.Carbohydrates = (item.Quantity / 100 * Number(res.Carbohydrates)).toString();
-            res.Fats = (item.Quantity / 100 * Number(res.Fats)).toString();
-            res.Proteins = (item.Quantity / 100 * Number(res.Proteins)).toString();
+            res.Calories = item.Quantity / 100 * res.Calories;
+            res.Carbohydrates = item.Quantity / 100 * res.Carbohydrates;
+            res.Fats = item.Quantity / 100 * res.Fats;
+            res.Proteins = item.Quantity / 100 * res.Proteins;
             this._foodTable.push(res);
             this._foodTableSubject.next(this._foodTable);
 

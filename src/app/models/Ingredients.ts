@@ -1,10 +1,10 @@
 export class Ingredients {
     public Id: string;
     public Name: string;
-    public Calories: string;
-    public Fats: string;
-    public Carbohydrates: string;
-    public Proteins: string;
+    public Calories: number;
+    public Fats: number;
+    public Carbohydrates: number;
+    public Proteins: number;
 
 
     public fromServer(other: any): void {
@@ -14,16 +14,16 @@ export class Ingredients {
         other.forEach(element => {
             switch (element.code) {
                 case "79001":
-                    this.Calories = element.fields[0].value;
+                    this.Calories = Number(element.fields[0].value);
                     break;
                 case "79007":
-                    this.Fats = element.fields[0].value;
+                    this.Fats = Number(element.fields[0].value);
                     break;
                 case "79003":
-                    this.Carbohydrates = element.fields[0].value;
+                    this.Carbohydrates = Number(element.fields[0].value);
                     break;
                 case "79002":
-                    this.Proteins = element.fields[0].value;
+                    this.Proteins = Number(element.fields[0].value);
                     break;
 
                 default:

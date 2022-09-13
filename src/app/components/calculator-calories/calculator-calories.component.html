@@ -8,11 +8,8 @@
                 <span class="title">{{item.Description}}</span>
 
                 <div class="quantity-info">
-
                     <span class="text">כמות (ג):</span>
-
                     <input type="number" minlength="0" class="form-control  quantity-input" [(ngModel)]="item.Quantity">
-
                     <mat-icon *ngIf="!item.IsAdded" class="add-icon" (click)="onAddItem(item)">add_circle</mat-icon>
                 </div>
             </div>
@@ -40,10 +37,10 @@
 
             <tr *ngFor="let item of _table">
                 <td>{{item.Name}}</td>
-                <td>{{item.Calories}}</td>
-                <td>{{item.Proteins}}</td>
-                <td>{{item.Carbohydrates}}</td>
-                <td>{{item.Fats}}</td>
+                <td>{{item.Calories.toFixed(1)}}</td>
+                <td>{{item.Proteins.toFixed(1)}}</td>
+                <td>{{item.Carbohydrates.toFixed(1)}}</td>
+                <td>{{item.Fats.toFixed(1)}}</td>
                 <td><mat-icon class="remove-icon" (click)="onRemoveItem(item)">remove_circle</mat-icon></td>
             </tr>
 

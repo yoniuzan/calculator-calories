@@ -60,10 +60,10 @@ export class CalculatorCaloriesComponent implements OnInit, OnDestroy {
             this.FatsSum = 0;
             this.ProteinsSum = 0;
             res.forEach(item => {
-                this.CaloriesSum += Number(item.Calories);
-                this.CarbohydratesSum += Number(item.Carbohydrates);
-                this.FatsSum += Number(item.Fats);
-                this.ProteinsSum += Number(item.Proteins);
+                this.CaloriesSum += item.Calories;
+                this.CarbohydratesSum += item.Carbohydrates;
+                this.FatsSum += item.Fats;
+                this.ProteinsSum += item.Proteins;
             })
 
             this._table = res;

@@ -57,8 +57,8 @@
                 flex-direction: column;
 
                 .title {
-                    font-size: 5vw;
-                    line-height: 8vw;
+                    font-size: 3vw;
+                    line-height: 5vw;
                     font-weight: bold;
 
                     @include sm {
@@ -74,7 +74,7 @@
                     width: 100%;
 
                     .text {
-                        font-size: 4.5vw;
+                        font-size: 2.5vw;
 
                         white-space: nowrap;
                         text-overflow: ellipsis;
