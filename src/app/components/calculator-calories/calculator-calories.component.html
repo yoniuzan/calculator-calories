@@ -35,7 +35,7 @@
                 <th>שומנים</th>
             </tr>
 
-            <tr *ngFor="let item of _table">
+            <tr *ngFor="let item of _table" >
                 <td><mat-icon class="remove-icon" [ngStyle]="{'color':'#ff8c62'}" (click)="onRemoveItem(item)">remove_circle</mat-icon></td>
                 <td>{{item.Name}}</td>
                 <td>{{item.Calories.toFixed(1)}}</td>

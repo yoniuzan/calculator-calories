@@ -37,10 +37,7 @@ export class CalculatorCaloriesComponent implements OnInit, OnDestroy {
     public ProteinsSum: number = 0;
 
     public isProccessing: boolean = false;
-
     public _table: Array<Ingredients> = [];
-
-    // public isAddItem
 
     constructor(private _calculatorService: CalculatorCaloriesService) {
         this._data$ = of([]);
@@ -76,9 +73,8 @@ export class CalculatorCaloriesComponent implements OnInit, OnDestroy {
     }
 
     onKey(event: any): Promise<void> {
-        if (event.target.value.length == 0) {
+        if (event.target.value.length == 0)
             return;
-        }
 
         this._data$ = fromEvent(this.filter.nativeElement, 'keyup');
         this._data$.pipe(debounceTime(1200)).subscribe(async c => {

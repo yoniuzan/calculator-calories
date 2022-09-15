@@ -40,7 +40,7 @@ export class CalculatorCaloriesService {
         if (text.length == 0)
             return;
 
-        if(this._searchItems.hasOwnProperty(text)){
+        if (this._searchItems.hasOwnProperty(text)) {
             this._foodItemList = this._searchItems[text];
             this._foodSearchSubject.next(this._searchItems[text]);
             return;
@@ -49,10 +49,6 @@ export class CalculatorCaloriesService {
         return this.http.get(Api.Calculator.Search + text, {}, Convert.GetFoodList).then(async (res: Array<FoodItem>) => {
             if (!res)
                 return;
-
-                // promises.push(this.http.get(Api.Calculator.getImageByCode + 'IL_7290000300009_7290102396757_1498986753546', {}, Convert.GetImageByCode).then((result: string) => {
-                //     res[0].Image = result;
-                // }));
 
             // const promises = [];            
             // res.forEach(async item => {
@@ -85,9 +81,16 @@ export class CalculatorCaloriesService {
             res.Id = item.Id;
             res.Name = item.Description;
             res.Calories = item.Quantity / 100 * res.Calories;
-            res.Carbohydrates = item.Quantity / 100 * res.Carbohydrates;
-            res.Fats = item.Quantity / 100 * res.Fats;
-            res.Proteins = item.Quantity / 100 * res.Proteins;
+
+            const calcCarbohydrates = ((item.Quantity / 100 * res.Carbohydrates) - (item.Quantity / 100 * res.DietaryFiber)) / 15;
+            res.Carbohydrates = calcCarbohydrates < 1 ? 0 : calcCarbohydrates;
+
+            const calcSumFats = item.Quantity / 100 * res.Fats;
+            const calcSaturatedFattyAcids = item.Quantity / 100 * res.SaturatedFattyAcids;
+            res.Fats = 50 * (1 - (calcSaturatedFattyAcids / calcSumFats));
+
+            res.Proteins = (item.Quantity / 100 * res.Proteins) / 10;
+
             this._foodTable.push(res);
             this._foodTableSubject.next(this._foodTable);
 
@@ -102,7 +105,7 @@ export class CalculatorCaloriesService {
         this._foodTableSubject.next(this._foodTable);
     }
 
-    public clearTable() : void {
+    public clearTable(): void {
         this._foodTable = [];
     }
 
