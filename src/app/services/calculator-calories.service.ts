@@ -83,12 +83,12 @@ export class CalculatorCaloriesService {
             res.Calories = item.Quantity / 100 * res.Calories;
 
             const calcCarbohydrates = ((item.Quantity / 100 * res.Carbohydrates) - (item.Quantity / 100 * res.DietaryFiber)) / 15;
-            res.Carbohydrates = calcCarbohydrates < 1 ? 0 : calcCarbohydrates;
             res.Dessert = (item.Quantity / 100 * res.Carbohydrates) / 4;
+            res.Carbohydrates = calcCarbohydrates < 1 ? 0 : calcCarbohydrates;
 
-            const calcSumFats = item.Quantity / 100 * res.Fats;
+            const calcSumFats = res.Fats == 0 ? 0 : item.Quantity / 100 * res.Fats;
             const calcSaturatedFattyAcids = item.Quantity / 100 * res.SaturatedFattyAcids;
-            res.Fats = 15 * (1 - (calcSaturatedFattyAcids / calcSumFats));
+            res.Fats = calcSumFats == 0 ? 0 : 15 * (1 - (calcSaturatedFattyAcids / calcSumFats));
 
             res.Proteins = (item.Quantity / 100 * res.Proteins) / 10;
 
