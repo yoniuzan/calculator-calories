@@ -84,10 +84,11 @@ export class CalculatorCaloriesService {
 
             const calcCarbohydrates = ((item.Quantity / 100 * res.Carbohydrates) - (item.Quantity / 100 * res.DietaryFiber)) / 15;
             res.Carbohydrates = calcCarbohydrates < 1 ? 0 : calcCarbohydrates;
+            res.Dessert = (item.Quantity / 100 * res.Carbohydrates) / 4;
 
             const calcSumFats = item.Quantity / 100 * res.Fats;
             const calcSaturatedFattyAcids = item.Quantity / 100 * res.SaturatedFattyAcids;
-            res.Fats = 50 * (1 - (calcSaturatedFattyAcids / calcSumFats));
+            res.Fats = 15 * (1 - (calcSaturatedFattyAcids / calcSumFats));
 
             res.Proteins = (item.Quantity / 100 * res.Proteins) / 10;
 
@@ -95,7 +96,7 @@ export class CalculatorCaloriesService {
             this._foodTableSubject.next(this._foodTable);
 
         }, (err) => {
-            alert('Failed!');
+            alert("לא קיימים נתונים עבור מוצר זה");
         });
     }
 

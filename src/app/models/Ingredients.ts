@@ -7,12 +7,14 @@ export class Ingredients {
     public Proteins: number;
     public DietaryFiber: number;
     public SaturatedFattyAcids: number;
+    public Dessert: number;
     
     public fromServer(other: any): void {
         this.Id = "";
         this.Name = "";
         this.DietaryFiber = 0;
-        this.SaturatedFattyAcids = 0
+        this.SaturatedFattyAcids = 0;
+        this.Dessert = 0;
         other.forEach(element => {
             switch (element.code) {
                 case "79001":

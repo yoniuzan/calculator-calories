@@ -35,6 +35,7 @@ export class CalculatorCaloriesComponent implements OnInit, OnDestroy {
     public FatsSum: number = 0;
     public CarbohydratesSum: number = 0;
     public ProteinsSum: number = 0;
+    public DessertSum: number = 0;
 
     public isProccessing: boolean = false;
     public _table: Array<Ingredients> = [];
@@ -56,11 +57,13 @@ export class CalculatorCaloriesComponent implements OnInit, OnDestroy {
             this.CarbohydratesSum = 0;
             this.FatsSum = 0;
             this.ProteinsSum = 0;
+            this.DessertSum = 0;
             res.forEach(item => {
                 this.CaloriesSum += item.Calories;
                 this.CarbohydratesSum += item.Carbohydrates;
                 this.FatsSum += item.Fats;
                 this.ProteinsSum += item.Proteins;
+                this.DessertSum += item.Dessert;
             })
 
             this._table = res;
