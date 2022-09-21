@@ -88,7 +88,7 @@ export class CalculatorCaloriesService {
 
             const calcSumFats = res.Fats == 0 ? 0 : item.Quantity / 100 * res.Fats;
             const calcSaturatedFattyAcids = item.Quantity / 100 * res.SaturatedFattyAcids;
-            res.Fats = calcSumFats == 0 ? 0 : 15 * (1 - (calcSaturatedFattyAcids / calcSumFats));
+            res.Fats = calcSumFats == 0 ? 0 : calcSumFats / (15 * (1 - (calcSaturatedFattyAcids / calcSumFats)));
 
             res.Proteins = (item.Quantity / 100 * res.Proteins) / 10;
 
@@ -108,6 +108,12 @@ export class CalculatorCaloriesService {
 
     public clearTable(): void {
         this._foodTable = [];
+    }
+
+    public onAddManualyItem(newItem: Ingredients) {
+        newItem.Id = Math.floor(Math.random() * 100).toString();
+        this._foodTable.push(newItem);
+        this._foodTableSubject.next(this._foodTable);
     }
 
 
