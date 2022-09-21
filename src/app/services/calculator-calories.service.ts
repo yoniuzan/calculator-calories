@@ -50,6 +50,11 @@ export class CalculatorCaloriesService {
             if (!res)
                 return;
 
+            // בקשה אחת
+            // this.http.get(Api.Calculator.getImageByCode + `${res[0].Code}`, {}, Convert.GetImageByCode).then((result: string) => {
+            //     res[0].Image = result;
+            // });
+
             // const promises = [];            
             // res.forEach(async item => {
             //     promises.push(this.http.get(Api.Calculator.getImageByCode + `${item.Code}`, {}, Convert.GetImageByCode).then((res: string) => {
@@ -82,22 +87,30 @@ export class CalculatorCaloriesService {
             res.Name = item.Description;
             res.Calories = item.Quantity / 100 * res.Calories;
 
-            const calcCarbohydrates = ((item.Quantity / 100 * res.Carbohydrates) - (item.Quantity / 100 * res.DietaryFiber)) / 15;
-            res.Dessert = (item.Quantity / 100 * res.Carbohydrates) / 4;
-            res.Carbohydrates = calcCarbohydrates < 1 ? 0 : calcCarbohydrates;
+            const result = this.calculateIngredients(item.Quantity, res);
 
-            const calcSumFats = res.Fats == 0 ? 0 : item.Quantity / 100 * res.Fats;
-            const calcSaturatedFattyAcids = item.Quantity / 100 * res.SaturatedFattyAcids;
-            res.Fats = calcSumFats == 0 ? 0 : calcSumFats / (15 * (1 - (calcSaturatedFattyAcids / calcSumFats)));
-
-            res.Proteins = (item.Quantity / 100 * res.Proteins) / 10;
-
-            this._foodTable.push(res);
+            this._foodTable.push(result);
             this._foodTableSubject.next(this._foodTable);
 
         }, (err) => {
             alert("לא קיימים נתונים עבור מוצר זה");
         });
+    }
+
+    private calculateIngredients(quantity: number, item: Ingredients) : Ingredients {
+
+        const calcCarbohydrates = ((quantity / 100 * item.Carbohydrates) - (quantity / 100 * item.DietaryFiber)) / 15;
+        item.Dessert = (quantity / 100 * item.Carbohydrates) / 4;
+        item.Carbohydrates = calcCarbohydrates < 1 ? 0 : calcCarbohydrates;
+
+        const calcSumFats = item.Fats == 0 ? 0 : quantity / 100 * item.Fats;
+        const calcSaturatedFattyAcids = quantity / 100 * item.SaturatedFattyAcids;
+        item.Fats = calcSumFats == 0 ? 0 : calcSumFats / (15 * (1 - (calcSaturatedFattyAcids / calcSumFats)));
+
+        item.Proteins = (quantity / 100 * item.Proteins) / 10;
+
+        return item;
+
     }
 
     public removeItem(item: FoodItem) {
@@ -110,7 +123,8 @@ export class CalculatorCaloriesService {
         this._foodTable = [];
     }
 
-    public onAddManualyItem(newItem: Ingredients) {
+    public onAddManualyItem(quantity: number, newItem: Ingredients) {
+        newItem = this.calculateIngredients(quantity, newItem);
         newItem.Id = Math.floor(Math.random() * 100).toString();
         this._foodTable.push(newItem);
         this._foodTableSubject.next(this._foodTable);

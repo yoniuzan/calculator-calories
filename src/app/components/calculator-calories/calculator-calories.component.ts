@@ -40,6 +40,11 @@ export class CalculatorCaloriesComponent implements OnInit, OnDestroy {
     public isProccessing: boolean = false;
     public _table: Array<Ingredients> = [];
 
+    public showFormProduct: boolean = false;
+    public newItem: Ingredients = new Ingredients();
+    public quantity: number = 100;
+    public errors: Array<string> = [];
+
     constructor(private _calculatorService: CalculatorCaloriesService) {
         this._data$ = of([]);
         this.registerEvents();
@@ -103,9 +108,6 @@ export class CalculatorCaloriesComponent implements OnInit, OnDestroy {
         item.Quantity = item.Quantity == 0 ? 100 : item.Quantity;
 
         await this._calculatorService.getItemIngredients(item);
-
-
-
     }
 
     public async onRemoveItem(item: FoodItem): Promise<void> {
@@ -122,6 +124,34 @@ export class CalculatorCaloriesComponent implements OnInit, OnDestroy {
         this._data$.forEach(el => el.forEach(x => x.IsAdded = false));
         this._calculatorService.clearTable();
         this._table = [];
+    }
+
+    private validationForm(): boolean {
+        const errors: Array<string> = [];
+        
+        if(this.newItem.Name.length == 0){
+            errors.push('שם מוצר לא תקין')
+        }
+
+        this.errors = errors;
+
+        if(this.errors.length > 0) 
+            return false;
+        
+
+        return true;
+    }
+
+    public addItem() : void {
+        if(!this.validationForm()) {
+            alert(this.errors);
+            return;
+        }
+        
+        this._calculatorService.onAddManualyItem(this.quantity, this.newItem);
+        this.newItem = new Ingredients();
+        this.quantity = 100;
+        
     }
 
     private clearSubscriptions(): void {

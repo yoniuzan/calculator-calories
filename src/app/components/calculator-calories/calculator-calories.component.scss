@@ -16,6 +16,11 @@
         @include md {
             height: 45px;
         }
+
+        &::placeholder {
+            color: black;
+            font-weight: bold;
+        }
     }
 
     .list {
@@ -142,7 +147,7 @@
         text-align: center;
         font-size: 2.5vw;
         font-weight: bold;
-        
+
 
         @include md {
             font-size: unset;
@@ -157,6 +162,7 @@
     td:first-child {
         border: unset;
         background-color: unset !important;
+        padding: 8px 0;
     }
 
     th:first-child {
@@ -177,6 +183,32 @@
             background: white !important;
         }
         
+    }
+
+    mat-form-field {
+        text-align: right;
+        width: 25vw;
+    }
+
+    .add-button {
+        width: 160px;
+        margin-block-start: 30px;
+        background: black;
+        border-radius: 5vw;
+        margin-inline-start: unset;
+    }
+
+    .item-form {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+        justify-content: space-between;
+
+        
+    }
+
+    .item-form:first-child {
+        margin-inline-end: auto;
     }
 
     button {
