@@ -12,6 +12,18 @@ calculator-calories {
     }
 
     @include lg {
-        padding: 150px;
+        padding: 100px 200px;;
+    }
+
+    @include xl {
+        padding: 100px 350px;;
+    }
+
+    @include xxl {
+        padding: 100px 450px;;
+    }
+
+    @include ultra {
+        padding: 100px 550px;;
     }
 }

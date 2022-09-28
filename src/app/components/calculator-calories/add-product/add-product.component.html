@@ -1,0 +1,64 @@
+<div class="add-product">
+
+    <button class="add-button" (click)="showFormProduct = !showFormProduct" mat-raised-button color="primary">
+        <span *ngIf="!showFormProduct"> הוסף\י מוצר </span>
+        <span *ngIf="showFormProduct"> סגירה </span>
+        <mat-icon *ngIf="!showFormProduct" [ngStyle]="{'color':'#ff8c62'}">expand_more</mat-icon>
+        <mat-icon *ngIf="showFormProduct" [ngStyle]="{'color':'#ff8c62'}">expand_less</mat-icon>
+    </button>
+
+    <div *ngIf="showFormProduct" class="item-form">
+        <mat-form-field class="example-form-field" appearance="fill">
+            <mat-label>שם מוצר</mat-label>
+            <input matInput type="text" [(ngModel)]="newItem.Name">
+        </mat-form-field>
+
+        <mat-form-field class="example-form-field" appearance="fill">
+            <mat-label>גרם</mat-label>
+            <input matInput type="number" inputmode="numeric" [(ngModel)]="quantity">
+        </mat-form-field>
+
+        <!-- <mat-form-field class="example-form-field" appearance="fill">
+            <mat-label>קלוריות</mat-label>
+            <input matInput type="number" [(ngModel)]="newItem.Calories">
+        </mat-form-field> -->
+
+        <mat-form-field class="example-form-field" appearance="fill">
+            <mat-label>חלבונים</mat-label>
+            <input matInput type="number" inputmode="numeric" [(ngModel)]="newItem.Proteins">
+        </mat-form-field>
+
+        <mat-form-field class="example-form-field" appearance="fill">
+            <mat-label>פחמימות</mat-label>
+            <input matInput type="number" inputmode="numeric" [(ngModel)]="newItem.Carbohydrates">
+        </mat-form-field>
+
+        <mat-form-field class="example-form-field" appearance="fill">
+            <mat-label>סיבים</mat-label>
+            <input matInput type="number" inputmode="numeric" [(ngModel)]="newItem.DietaryFiber">
+        </mat-form-field>
+
+        <mat-form-field class="example-form-field" appearance="fill">
+            <mat-label>שומנים</mat-label>
+            <input matInput type="number" inputmode="numeric" [(ngModel)]="newItem.Fats">
+        </mat-form-field>
+
+        <mat-form-field class="example-form-field" appearance="fill">
+            <mat-label>שומן רווי</mat-label>
+            <input matInput type="number" inputmode="numeric" [(ngModel)]="newItem.SaturatedFattyAcids">
+        </mat-form-field>
+
+        <mat-form-field class="example-form-field" appearance="fill">
+            <mat-label>סוכרים</mat-label>
+            <input matInput type="number" inputmode="numeric" [(ngModel)]="newItem.Dessert">
+        </mat-form-field>
+
+
+    </div>
+
+    <button *ngIf="showFormProduct" class="add-button" (click)="addItem()" mat-raised-button color="primary">
+        <span> הוסף\י </span>
+        <mat-icon [ngStyle]="{'color':'#ff8c62'}">add_box</mat-icon>
+    </button>
+    
+</div>

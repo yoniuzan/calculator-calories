@@ -12,12 +12,18 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatInputModule} from '@angular/material/input';
+import { SearchProductComponent } from './components/calculator-calories/search-product/search-product.component';
+import { AddProductComponent } from './components/calculator-calories/add-product/add-product.component';
+import { ProductTableComponent } from './components/calculator-calories/product-table/product-table.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
     CalculatorCaloriesComponent,
+    SearchProductComponent,
+    AddProductComponent,
+    ProductTableComponent,
   ],
   imports: [
     BrowserModule,

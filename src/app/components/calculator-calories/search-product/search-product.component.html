@@ -1,0 +1,25 @@
+<div class="search-product">
+    <input type="text" placeholder="חפש" class="form-control calculator-input" #filter (keyup)="onKey($event)">
+
+    <div *ngIf="!_isEmptyResult" class="list" [ngClass]="{'search': _data$.length > 3}">
+        <div *ngFor="let item of _data$ | async ;trackBy trackByIndex" class="select-info">
+            <!-- <img class="food-image" src="https://img.mako.co.il/2020/04/13/potato_bread2_i.jpg" /> -->
+            <div class="food-info">
+                <span class="title">{{item.Description}}</span>
+
+                <div class="quantity-info">
+                    <span class="text">כמות (ג):</span>
+                    <input type="number" minlength="0" class="form-control  quantity-input" [(ngModel)]="item.Quantity">
+                    <mat-icon *ngIf="!item.IsAdded" class="add-icon" [ngStyle]="{'color':'#ff8c62'}"
+                        (click)="onAddItem(item)">add_circle</mat-icon>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="isProccessing" class="spinner">
+        <mat-spinner class="custom-spinner" diameter="50"></mat-spinner>
+    </div>
+
+    <span *ngIf="_isEmptyResult && !isProccessing"> אין תוצאות</span>
+</div>

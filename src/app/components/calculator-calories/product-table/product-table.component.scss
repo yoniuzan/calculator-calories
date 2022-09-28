@@ -1,0 +1,62 @@
+@import "../../../styles/responsive.scss";
+
+.product-table {
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td,
+    th {
+        border: 2px solid black;
+        padding: 8px;
+        text-align: center;
+        font-size: 2.5vw;
+        font-weight: bold;
+
+
+        @include md {
+            font-size: unset;
+        }
+        .remove-icon {
+            cursor: pointer;
+            border-radius: 50%;
+        }
+    }
+
+    
+    td:first-child {
+        border: unset;
+        background-color: unset !important;
+        padding: 8px 0;
+    }
+
+    th:first-child {
+        border: unset;
+        background-color: unset !important;
+    }
+
+    tr:first-child {
+        border: unset;
+        background-color: unset !important;
+    }
+
+    .sum {
+        background: #ff8c62;
+
+        .empty {
+            border: unset;
+            background: white !important;
+        }
+        
+    }
+
+    button {
+        font-family: "M PLUS Rounded 1c";
+        width: 100px;
+        margin-block-start: 10px;
+        background: black;
+        border-radius: 5vw;
+        margin-inline-start: 7.5vw;
+    }
+}

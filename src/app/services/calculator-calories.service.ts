@@ -18,10 +18,15 @@ export class CalculatorCaloriesService {
 
     private _foodSearchSubject: Subject<Array<FoodItem>>;
     private _foodTableSubject: Subject<Array<Ingredients>>;
+    private _removeProductSubject: Subject<string>;
+    private _clearTableSubject: Subject<void>;
 
     constructor(private http: HttpService) {
         this._foodSearchSubject = new Subject();
         this._foodTableSubject = new Subject();
+        this._removeProductSubject = new Subject();
+        this._clearTableSubject = new Subject();
+        
     }
 
     public registerOnsearch(): Observable<Array<FoodItem>> {
@@ -30,6 +35,14 @@ export class CalculatorCaloriesService {
 
     public registerOnfoodTableChange(): Observable<Array<Ingredients>> {
         return this._foodTableSubject.asObservable();
+    }
+
+    public registerOnRemoveProduct(): Observable<string> {
+        return this._removeProductSubject.asObservable();
+    }
+
+    public registerOnClearTable(): Observable<void> {
+        return this._clearTableSubject.asObservable();
     }
 
     public get FoodList(): Array<FoodItem> {
@@ -100,7 +113,7 @@ export class CalculatorCaloriesService {
     private calculateIngredients(quantity: number, item: Ingredients) : Ingredients {
 
         const calcCarbohydrates = ((quantity / 100 * item.Carbohydrates) - (quantity / 100 * item.DietaryFiber)) / 15;
-        item.Dessert = (quantity / 100 * item.Carbohydrates) / 4;
+        item.Dessert = (quantity / 100 * item.Dessert) / 4;
         item.Carbohydrates = calcCarbohydrates < 1 ? 0 : calcCarbohydrates;
 
         const calcSumFats = item.Fats == 0 ? 0 : quantity / 100 * item.Fats;
@@ -115,12 +128,14 @@ export class CalculatorCaloriesService {
 
     public removeItem(item: FoodItem) {
         item.IsAdded = false;
+        this._removeProductSubject.next(item.Id);
         this._foodTable = this._foodTable.filter(el => el.Id != item.Id);
         this._foodTableSubject.next(this._foodTable);
     }
 
     public clearTable(): void {
         this._foodTable = [];
+        this._clearTableSubject.next();
     }
 
     public onAddManualyItem(quantity: number, newItem: Ingredients) {

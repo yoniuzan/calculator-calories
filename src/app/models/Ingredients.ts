@@ -42,6 +42,9 @@ export class Ingredients {
                 case "79008":
                     this.SaturatedFattyAcids = Number(element.fields[0].value);
                     break;
+                case "79004":
+                    this.Dessert = Number(element.fields[0].value);
+                    break;
                 default:
                     break;
             }

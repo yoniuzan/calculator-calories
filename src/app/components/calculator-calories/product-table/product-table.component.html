@@ -1,0 +1,48 @@
+<div class="product-table">
+
+    <div class="table-list">
+
+        <table>
+            <tr>
+                <th></th>
+                <th>שם</th>
+                <!-- <th>קלוריות</th> -->
+                <th>חלבונים</th>
+                <th>פחמימות</th>
+                <th>שומנים</th>
+                <th>פינוק</th>
+            </tr>
+
+            <tr *ngFor="let item of _table">
+                <td>
+                    <mat-icon class="remove-icon" [ngStyle]="{'color':'#ff8c62'}" (click)="onRemoveItem(item)">
+                        remove_circle</mat-icon>
+                </td>
+                <td>{{item.Name}}</td>
+                <!-- <td>{{item.Calories.toFixed(1)}}</td> -->
+                <td>{{item.Proteins.toFixed(1)}}</td>
+                <td>{{item.Carbohydrates.toFixed(1)}}</td>
+                <td>{{item.Fats.toFixed(1)}}</td>
+                <td>{{item.Dessert.toFixed(1)}}</td>
+            </tr>
+
+            <tr class="sum" *ngIf="_table.length > 0">
+                <td class="empty"> </td>
+                <td style="font-weight: bold">סה"כ</td>
+                <!-- <td style="font-weight: bold">{{CaloriesSum.toFixed(1)}}</td> -->
+                <td style="font-weight: bold">{{ProteinsSum.toFixed(1)}}</td>
+                <td style="font-weight: bold">{{CarbohydratesSum.toFixed(1)}}</td>
+                <td style="font-weight: bold">{{FatsSum.toFixed(1)}}</td>
+                <td style="font-weight: bold">{{DessertSum.toFixed(1)}}</td>
+            </tr>
+
+        </table>
+
+    </div>
+
+    <button *ngIf="_table.length > 0" (click)="clear()" mat-raised-button color="primary">
+        איפוס
+        <mat-icon [ngStyle]="{'color':'#ff8c62'}">keyboard_return</mat-icon>
+    </button>
+
+</div>
