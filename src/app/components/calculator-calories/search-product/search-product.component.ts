@@ -13,13 +13,18 @@ export class SearchProductComponent implements OnInit, OnDestroy {
 
     @ViewChild("filter") filter: ElementRef;
 
-    public _isEmptyResult: boolean = false;
+    public _isEmptyResult: boolean = true;
+    public _isEmptySearch: boolean = false;
     public _data$: Observable<FoodItem[]>;
     public isProccessing: boolean = false;
+    public isLoadMore: boolean = false;
+    public isEmptyMoreResult: boolean = false;
+
+    private _inputText: string;
 
     private _subscriptions: Array<Subscription>;
 
-    constructor(private _calculatorService: CalculatorCaloriesService) { 
+    constructor(private _calculatorService: CalculatorCaloriesService) {
         this._data$ = of([]);
         this.registerEvents();
     }
@@ -28,12 +33,25 @@ export class SearchProductComponent implements OnInit, OnDestroy {
         const subscriptions: Array<Subscription> = [];
 
         subscriptions.push(this._calculatorService.registerOnsearch().subscribe((res: Array<FoodItem>) => {
-            this._isEmptyResult = !res || res.length == 0
+            this._isEmptyResult = !res || res.length == 0;
+            this._isEmptySearch = !res || res.length == 0;
+            this.isProccessing = false;
+            this.isLoadMore = false;
+
+            this.isEmptyMoreResult = this._calculatorService.IsEmptyResult;
+
+            this._data$ = of(this._calculatorService.FoodList).pipe(
+                debounceTime(1000),
+                mergeMap(x => x),
+                distinctUntilChanged(),
+                toArray(),
+            );
+
         }));
 
         subscriptions.push(this._calculatorService.registerOnRemoveProduct().subscribe((productId: string) => {
             this._data$.forEach(el => el.forEach(x => {
-                if(x.Id == productId)
+                if (x.Id == productId)
                     x.IsAdded = false
             }));
         }));
@@ -52,23 +70,17 @@ export class SearchProductComponent implements OnInit, OnDestroy {
         if (event.target.value.length == 0)
             return;
 
+        this._inputText = event.target.value;
+        this._isEmptyResult = true;
+
         this._data$ = fromEvent(this.filter.nativeElement, 'keyup');
-        this._data$.pipe(debounceTime(1200)).subscribe(async c => {
+        this._data$.pipe(debounceTime(1200)).subscribe(() => {
             if (this.isProccessing == true)
                 return;
-
             this.isProccessing = true;
-            await this._calculatorService.searchItems(event.target.value);
-            this.isProccessing = false;
-            this._data$ = of(this._calculatorService.FoodList).pipe(
-                debounceTime(1000),
-                mergeMap(x => x),
-                distinctUntilChanged(),
-                toArray(),
-            );
-        }
-        );
-
+            this._calculatorService.IsLoadMore = false;
+            this._calculatorService.searchItems(event.target.value);
+        });
     }
 
     public async onAddItem(item: FoodItem): Promise<void> {
@@ -76,6 +88,18 @@ export class SearchProductComponent implements OnInit, OnDestroy {
         item.Quantity = item.Quantity == 0 ? 100 : item.Quantity;
 
         await this._calculatorService.getItemIngredients(item);
+    }
+
+    public loadMore(): void {
+        this.isLoadMore = true;
+        this._calculatorService.IsLoadMore = true;
+        this._calculatorService.getMoreItems();
+        this._calculatorService.searchItems(this._inputText);
+    }
+
+    onBlur() : void {
+        debugger;
+        this._isEmptyResult = true;
     }
 
     private clearSubscriptions(): void {

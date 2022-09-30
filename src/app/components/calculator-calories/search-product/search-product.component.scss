@@ -57,12 +57,13 @@
             }
 
             .food-image {
+                margin: auto;
+                display: block;
+
                 width: 30px;
                 border-radius: 5em;
                 width: 50px;
                 height: 50px;
-                object-fit: cover;
-                object-position: top;
                 padding: 2px;
                 border: 1px solid #dcd7d3;
                 margin: 0 8px;
@@ -130,11 +131,26 @@
         :hover {
             background-color: #d5dce7;
         }
+
+        .more-result {
+            display: flex;
+            justify-content: center;
+            .more-result-button {
+                font-family: "M PLUS Rounded 1c";
+                width: 160px;
+                margin-block-start: 30px;
+                margin-block-end: 15px;
+                background: black;
+                border-radius: 5vw;
+                margin-inline-start: unset;
+            }
+        }
     }
 
-    .spinner {
-        display: flex;
-        justify-content: center;
-        margin-block-start: 10px;
-    }
+}
+
+.spinner {
+    display: flex;
+    justify-content: center;
+    margin-block-start: 10px;
 }

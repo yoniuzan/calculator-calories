@@ -4,7 +4,7 @@ export class FoodItem {
     public Description: string;
     public Quantity: number;
     public IsAdded: boolean;
-    public Image: string;
+    public Image: any;
 
     public fromServer(other: any): void {
         this.Id = other.id;

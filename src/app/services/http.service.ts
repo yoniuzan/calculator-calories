@@ -15,7 +15,7 @@ export class HttpService {
         if (Object.keys(data).length == 0)
             return '';
 
-        return '?' + Object.keys(data).map(key => `${key}=${data[key]}`).join('&');
+        return '&' + Object.keys(data).map(key => `${key}=${data[key]}`).join('&');
     }
 
     public async get<T>(relativePath: string, data: any, convert: (da: any, ex?: any) => T) {
@@ -48,6 +48,38 @@ export class HttpService {
             throw e;
         }
     }
+
+    public async getImage<T>(relativePath: string, data: any, convert: (da: any, ex?: any) => T) {
+
+        data = Object.keys(data).length == 0 ? {} : data;
+        convert = convert ? convert : function (data) {
+            return data;
+        };
+
+        const completePath = `${environment.Server}${relativePath}${this.getParams(data)}`;
+
+        try {
+            return this._http.get(completePath, {responseType: 'text'})
+                .pipe(
+                    map((res: any) => {
+                        try {
+                            return convert(res);
+                        }
+                        catch (e) {
+                            throw e;
+                        }
+
+                    }),
+                    catchError((err) => {
+                        return err;
+
+                    }))
+                .toPromise();
+        } catch (e) {
+            throw e;
+        }
+    }
+
 
     async post<T>(relativePath: string, data: any, convert: (da: any) => T) {
 

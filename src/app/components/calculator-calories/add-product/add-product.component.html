@@ -1,7 +1,7 @@
 <div class="add-product">
 
     <button class="add-button" (click)="showFormProduct = !showFormProduct" mat-raised-button color="primary">
-        <span *ngIf="!showFormProduct"> הוסף\י מוצר </span>
+        <span *ngIf="!showFormProduct"> הוספת מוצר ידני </span>
         <span *ngIf="showFormProduct"> סגירה </span>
         <mat-icon *ngIf="!showFormProduct" [ngStyle]="{'color':'#ff8c62'}">expand_more</mat-icon>
         <mat-icon *ngIf="showFormProduct" [ngStyle]="{'color':'#ff8c62'}">expand_less</mat-icon>
