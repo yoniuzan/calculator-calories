@@ -112,9 +112,8 @@ export class CalculatorCaloriesService {
 
     private calculateIngredients(quantity: number, item: Ingredients) : Ingredients {
 
-        const calcCarbohydrates = ((quantity / 100 * item.Carbohydrates) - (quantity / 100 * item.DietaryFiber)) / 15;
+        item.Carbohydrates = ((quantity / 100 * item.Carbohydrates) - (quantity / 100 * item.DietaryFiber)) / 15;
         item.Dessert = (quantity / 100 * item.Dessert) / 4;
-        item.Carbohydrates = calcCarbohydrates < 1 ? 0 : calcCarbohydrates;
 
         const calcSumFats = item.Fats == 0 ? 0 : quantity / 100 * item.Fats;
         const calcSaturatedFattyAcids = quantity / 100 * item.SaturatedFattyAcids;
