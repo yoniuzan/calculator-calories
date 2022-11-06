@@ -1,3 +1,4 @@
+import { FoodItemMongoDb } from './../../../models/foodItemMongoDb';
 import { CalculatorCaloriesService } from './../../../services/calculator-calories.service';
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Observable, fromEvent, of, Subscription } from 'rxjs';
@@ -79,13 +80,22 @@ export class SearchProductComponent implements OnInit, OnDestroy {
                 return;
             this.isProccessing = true;
             this._calculatorService.IsLoadMore = false;
-            this._calculatorService.searchItems(event.target.value);
+            this._calculatorService.productStart(event.target.value);
         });
     }
 
-    public async onAddItem(item: FoodItem): Promise<void> {
+    public async onAddItem(item: FoodItem | FoodItemMongoDb): Promise<void> {
         item.IsAdded = true;
         item.Quantity = item.Quantity == 0 ? 100 : item.Quantity;
+
+        if(item instanceof FoodItemMongoDb) {
+            let mongoItem = item as FoodItemMongoDb;
+            if(mongoItem.Fats) {
+                this._calculatorService.addItemFromMongo(mongoItem);
+                return;
+            }
+        }
+        
 
         await this._calculatorService.getItemIngredients(item);
     }
@@ -94,7 +104,7 @@ export class SearchProductComponent implements OnInit, OnDestroy {
         this.isLoadMore = true;
         this._calculatorService.IsLoadMore = true;
         this._calculatorService.getMoreItems();
-        this._calculatorService.searchItems(this._inputText);
+        this._calculatorService.productStart(this._inputText);
     }
 
     onBlur() : void {
