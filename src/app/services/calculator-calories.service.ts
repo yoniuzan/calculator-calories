@@ -24,7 +24,8 @@ export class CalculatorCaloriesService {
     private _foodTableSubject: Subject<Array<Ingredients>>;
     private _removeProductSubject: Subject<string>;
     private _clearTableSubject: Subject<void>;
-    private _emptySearchSubject: Subject<void>;
+    private _emptySearchSubject: Subject<void>; // אין עוד תוצאות עבור מוצר ספציפי
+    private _noResult: Subject<void>; // אין מוצרים בכלל
 
     private startIndex: number;
     private isLoadMore: boolean = false;
@@ -32,7 +33,6 @@ export class CalculatorCaloriesService {
     private isLassThanMaxProducts: boolean = false;
     private isLassThanMaxProductsContain: boolean = false;
     private isProductContainAndNotEmpty: boolean = false;
-    // private isProductContainAndNotEmpty: boolean = false;
 
     constructor(private http: HttpService, private _sanitizer: DomSanitizer) {
         this._foodSearchSubject = new Subject();
@@ -40,6 +40,9 @@ export class CalculatorCaloriesService {
         this._removeProductSubject = new Subject();
         this._clearTableSubject = new Subject();
         this._emptySearchSubject = new Subject();
+        this._noResult = new Subject();
+
+
         this.initIndexForMoreItems()
 
     }
@@ -68,12 +71,20 @@ export class CalculatorCaloriesService {
         return this._emptySearchSubject.asObservable();
     }
 
+    public registerOnNoResult(): Observable<void> {
+        return this._noResult.asObservable();
+    }
+
     public get FoodList(): Array<FoodItem> {
         return this._foodItemList;
     }
 
     public get IsEmptyResult(): boolean {
         return this.isEmptyResult;
+    }
+
+    public get cacheSearchItems(): {} {
+        return this.searchItems;
     }
 
     public set IsLoadMore(isLoadMore: boolean) {
@@ -138,6 +149,16 @@ export class CalculatorCaloriesService {
             this._emptySearchSubject.next();
             return;
         }
+
+        // if (this._searchItems.hasOwnProperty(text) && !this.isLoadMore) {
+        //     this.isEmptyResult = false;
+        //     this._foodItemList = this._searchItems[text];
+        //     console.log(text);
+        //     console.log(this._searchItems[text]);
+            
+        //     this._foodSearchSubject.next(this._searchItems[text]);
+        //     return;
+        // }
 
         if (!this.isLoadMore) {
             this.isLassThanMaxProducts = false;
@@ -236,7 +257,7 @@ export class CalculatorCaloriesService {
         return this.http.get(Api.Calculator.GetProducMongoDb + text, data, Convert.GetMongoFoodList).then(async (res: Array<FoodItemMongoDb>) => {
             this.isEmptyResult = res.length == 0 || res.length < Constants.Products.productStart ? true : false;
             if (res.length === 0) {
-                this._foodSearchSubject.next(this._foodItemList);
+                this._searchItems[text] ? this._foodSearchSubject.next(this._foodItemList) : this._noResult.next();
                 return;
             }
 

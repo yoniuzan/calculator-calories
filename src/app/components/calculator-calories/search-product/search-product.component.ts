@@ -38,7 +38,6 @@ export class SearchProductComponent implements OnInit, OnDestroy {
             this._isEmptySearch = !res || res.length == 0;
             this.isProccessing = false;
             this.isLoadMore = false;
-
             this.isEmptyMoreResult = this._calculatorService.IsEmptyResult;
 
             this._data$ = of(this._calculatorService.FoodList).pipe(
@@ -65,6 +64,11 @@ export class SearchProductComponent implements OnInit, OnDestroy {
             this.isProccessing = false;
         }));
 
+        subscriptions.push(this._calculatorService.registerOnNoResult().subscribe(() => {
+            this._isEmptySearch = true;
+            this.isProccessing = false;
+        }));
+
         this._subscriptions = subscriptions;
     }
 
@@ -72,18 +76,22 @@ export class SearchProductComponent implements OnInit, OnDestroy {
     }
 
     onKey(event: any): Promise<void> {
-        if (event.target.value.length == 0)
+        if (event.target.value.length == 0) {
+            this._isEmptyResult = true;
             return;
+        }
 
         this._inputText = event.target.value;
         this._isEmptyResult = true;
 
         this._data$ = fromEvent(this.filter.nativeElement, 'keyup');
-        this._data$.pipe(debounceTime(1200)).subscribe(() => {
-            if (this.isProccessing == true)
+        this._data$.pipe(debounceTime(1000)).subscribe((val) => {
+            if (this.isProccessing)
                 return;
+
             this.isProccessing = true;
             this._calculatorService.IsLoadMore = false;
+
             this._calculatorService.productStart(event.target.value);
         });
     }
@@ -92,14 +100,14 @@ export class SearchProductComponent implements OnInit, OnDestroy {
         item.IsAdded = true;
         item.Quantity = item.Quantity == 0 ? 100 : item.Quantity;
 
-        if(item instanceof FoodItemMongoDb) {
+        if (item instanceof FoodItemMongoDb) {
             let mongoItem = item as FoodItemMongoDb;
-            if(mongoItem.Fats) {
+            if (mongoItem.Fats) {
                 this._calculatorService.addItemFromMongo(mongoItem);
                 return;
             }
         }
-        
+
 
         await this._calculatorService.getItemIngredients(item);
     }
@@ -111,8 +119,7 @@ export class SearchProductComponent implements OnInit, OnDestroy {
         this._calculatorService.productStart(this._inputText);
     }
 
-    onBlur() : void {
-        debugger;
+    onBlur(): void {
         this._isEmptyResult = true;
     }
 
