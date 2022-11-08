@@ -61,6 +61,10 @@ export class SearchProductComponent implements OnInit, OnDestroy {
             this._data$.forEach(el => el.forEach(x => x.IsAdded = false));
         }));
 
+        subscriptions.push(this._calculatorService.registerOnEmptySearch().subscribe(() => {
+            this.isProccessing = false;
+        }));
+
         this._subscriptions = subscriptions;
     }
 

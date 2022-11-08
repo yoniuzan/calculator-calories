@@ -13,6 +13,7 @@ import { FoodItemMongoDb } from '../models/foodItemMongoDb';
     providedIn: 'root'
 })
 export class CalculatorCaloriesService {
+    
 
     private _foodItemList: Array<FoodItem> = [];
     private _foodTable: Array<Ingredients> = [];
@@ -23,6 +24,7 @@ export class CalculatorCaloriesService {
     private _foodTableSubject: Subject<Array<Ingredients>>;
     private _removeProductSubject: Subject<string>;
     private _clearTableSubject: Subject<void>;
+    private _emptySearchSubject: Subject<void>;
 
     private startIndex: number;
     private isLoadMore: boolean = false;
@@ -30,13 +32,14 @@ export class CalculatorCaloriesService {
     private isLassThanMaxProducts: boolean = false;
     private isLassThanMaxProductsContain: boolean = false;
     private isProductContainAndNotEmpty: boolean = false;
-    private lengthOfProductsResult: number;
+    // private isProductContainAndNotEmpty: boolean = false;
 
     constructor(private http: HttpService, private _sanitizer: DomSanitizer) {
         this._foodSearchSubject = new Subject();
         this._foodTableSubject = new Subject();
         this._removeProductSubject = new Subject();
         this._clearTableSubject = new Subject();
+        this._emptySearchSubject = new Subject();
         this.initIndexForMoreItems()
 
     }
@@ -59,6 +62,10 @@ export class CalculatorCaloriesService {
 
     public registerOnClearTable(): Observable<void> {
         return this._clearTableSubject.asObservable();
+    }
+
+    public registerOnEmptySearch(): Observable<void> {
+        return this._emptySearchSubject.asObservable();
     }
 
     public get FoodList(): Array<FoodItem> {
@@ -127,8 +134,10 @@ export class CalculatorCaloriesService {
     }
 
     public productStart(text: string): Promise<void> {
-        if (text.length == 0)
+        if (text.length == 0) {
+            this._emptySearchSubject.next();
             return;
+        }
 
         if (!this.isLoadMore) {
             this.isLassThanMaxProducts = false;
@@ -167,8 +176,10 @@ export class CalculatorCaloriesService {
     }
 
     public productContain(text: string): Promise<void> {
-        if (text.length == 0)
+        if (text.length == 0) {
+            this._emptySearchSubject.next();
             return;
+        }
 
         if (!this.isLoadMore) {
             this.isLassThanMaxProductsContain = false;
@@ -209,13 +220,15 @@ export class CalculatorCaloriesService {
     }
 
     public productMongo(text: string): Promise<void> {
-        if (text.length == 0)
+        if (text.length == 0) {
+            this._emptySearchSubject.next();
             return;
-
-        if (!this.isLoadMore) {
-            this.initIndexForMoreItems();
         }
 
+        if (!this.isLoadMore || this.isLassThanMaxProductsContain) {
+            this.initIndexForMoreItems();
+        }
+    
         const data = {
             start: this.startIndex
         }
@@ -357,7 +370,7 @@ export class CalculatorCaloriesService {
     }
 
     getMoreItems() {
-        if (!this.isLassThanMaxProducts || this.isProductContainAndNotEmpty)
+        if (!this.isLassThanMaxProducts || this.isProductContainAndNotEmpty || this.isLassThanMaxProductsContain)
             this.startIndex += Constants.Products.productStart;
     }
 

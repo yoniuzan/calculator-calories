@@ -18,6 +18,6 @@ export class FoodItem {
     public fromServer(other: any): void {
         this.Id = other.id;
         this.Code = other.product_code;
-        this.Description = other.Trade_Item_Description;
+        this.Description = other.trade_item_description;
     }
 }
