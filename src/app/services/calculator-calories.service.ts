@@ -229,17 +229,15 @@ export class CalculatorCaloriesService {
 
             this.isEmptyResult = res.length == 0 ? true : false;
 
-            if (res.length == 0) {
-                this.initIndexForMoreItems();
-                this.productMongo(text);
-                return;
-            }
-
-
             if (res.length < Constants.Products.productStart) {
                 this.prevRequest = Enums.StateRequest.Contain;
                 this.nextRequest = Enums.StateRequest.Mongo;
                 this.initIndexForMoreItems();
+            }
+
+            if (res.length == 0) {
+                this.productMongo(text);
+                return;
             }
 
             if (res.length === Constants.Products.productStart)
@@ -419,7 +417,7 @@ export class CalculatorCaloriesService {
     public getMoreItems() {
         if (this.nextRequest != this.prevRequest)
             return;
-        
+
         this.startIndex += Constants.Products.productStart;
     }
 
