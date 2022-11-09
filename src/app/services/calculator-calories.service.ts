@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, forkJoin } from 'rxjs';
 import { Api } from '../common/api';
 import { Convert } from '../common/convert';
 import { FoodItem } from '../models/foodItem';
@@ -8,17 +8,19 @@ import { HttpService } from './http.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Constants } from '../common/constants';
 import { FoodItemMongoDb } from '../models/foodItemMongoDb';
+import { Enums } from '../common/enum';
+import { SearchProduct } from '../models/searchProduct';
 
 @Injectable({
     providedIn: 'root'
 })
 export class CalculatorCaloriesService {
-    
 
     private _foodItemList: Array<FoodItem> = [];
     private _foodTable: Array<Ingredients> = [];
 
-    private _searchItems = {};
+    // private _searchItems: {[index:Array<FoodItem>] = {};
+    private _searchProducts: Array<SearchProduct> = [];
 
     private _foodSearchSubject: Subject<Array<FoodItem>>;
     private _foodTableSubject: Subject<Array<Ingredients>>;
@@ -30,9 +32,9 @@ export class CalculatorCaloriesService {
     private startIndex: number;
     private isLoadMore: boolean = false;
     private isEmptyResult: boolean = false;
-    private isLassThanMaxProducts: boolean = false;
-    private isLassThanMaxProductsContain: boolean = false;
-    private isProductContainAndNotEmpty: boolean = false;
+
+    private nextRequest: Enums.StateRequest = Enums.StateRequest.Start;
+    private prevRequest: Enums.StateRequest = Enums.StateRequest.Start;
 
     constructor(private http: HttpService, private _sanitizer: DomSanitizer) {
         this._foodSearchSubject = new Subject();
@@ -41,9 +43,7 @@ export class CalculatorCaloriesService {
         this._clearTableSubject = new Subject();
         this._emptySearchSubject = new Subject();
         this._noResult = new Subject();
-
-
-        this.initIndexForMoreItems()
+        this.startIndex = 0;
 
     }
 
@@ -83,92 +83,102 @@ export class CalculatorCaloriesService {
         return this.isEmptyResult;
     }
 
-    public get cacheSearchItems(): {} {
-        return this.searchItems;
+    public get productAlreadySearch(): Array<SearchProduct> {
+        return this._searchProducts;
     }
 
     public set IsLoadMore(isLoadMore: boolean) {
         this.isLoadMore = isLoadMore;
     }
 
-    public searchItems(text: string): Promise<void> {
-        if (text.length == 0)
-            return;
+    // public searchItems(text: string): Promise<void> {
+    //     if (text.length == 0)
+    //         return;
 
-        // if (this._searchItems.hasOwnProperty(text)) {
-        //     this._foodItemList = this._searchItems[text];
-        //     this._foodSearchSubject.next(this._searchItems[text]);
-        //     return;
-        // }
+    //     if (!this.isLoadMore)
+    //         this.initIndexForMoreItems();
 
-        //////////////////////////////////////
-        if (!this.isLoadMore)
-            this.initIndexForMoreItems();
+    //     const data = {
+    //         start: this.startIndex
+    //     }
 
-        const data = {
-            start: this.startIndex
-        }
+    //     return this.http.get(Api.Calculator.Search + text, data, Convert.GetFoodList).then(async (res: Array<FoodItem>) => {
+    //         if (!res)
+    //             return;
 
-        return this.http.get(Api.Calculator.Search + text, data, Convert.GetFoodList).then(async (res: Array<FoodItem>) => {
-            if (!res)
-                return;
+    //         this.isEmptyResult = res.length == 0 ? true : false;
 
-            this.isEmptyResult = res.length == 0 ? true : false;
+    //         const promises = [];
+    //         res.forEach(async item => {
+    //             promises.push(this.http.getImage(Api.Calculator.getImageByCode + `${item.Code}`, {}, Convert.GetImageByCode).then((res: string) => {
+    //                 item.Image = this._sanitizer.bypassSecurityTrustResourceUrl('data:image/jpg;base64,'
+    //                     + res);
+    //             }, (err) => {
+    //                 const imageError = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg=="
+    //                 item.Image = this._sanitizer.bypassSecurityTrustResourceUrl('data:image/jpg;base64,'
+    //                     + imageError)
+    //             }));
+    //         })
 
-            const promises = [];
-            res.forEach(async item => {
-                promises.push(this.http.getImage(Api.Calculator.getImageByCode + `${item.Code}`, {}, Convert.GetImageByCode).then((res: string) => {
-                    item.Image = this._sanitizer.bypassSecurityTrustResourceUrl('data:image/jpg;base64,'
-                        + res);
-                }, (err) => {
-                    const imageError = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg=="
-                    item.Image = this._sanitizer.bypassSecurityTrustResourceUrl('data:image/jpg;base64,'
-                        + imageError)
-                }));
-            })
+    //         Promise.all(promises).then(() => {
+    //             if (this.isLoadMore)
+    //                 this._searchItems[text].push(...res);
+    //             else {
+    //                 this._searchItems[text] = res;
+    //                 this._foodItemList = res;
+    //             }
 
-            Promise.all(promises).then(() => {
-                if (this.isLoadMore)
-                    this._searchItems[text].push(...res);
-                else {
-                    this._searchItems[text] = res;
-                    this._foodItemList = res;
-                }
+    //             this._foodSearchSubject.next(this._foodItemList);
+    //             return;
+    //         });
 
-                this._foodSearchSubject.next(this._foodItemList);
-                return;
-            });
+    //     }, (err) => {
+    //         alert('Failed!');
+    //     });
+    // }
 
-        }, (err) => {
-            alert('Failed!');
-        });
-    }
 
-    public productStart(text: string): Promise<void> {
+    public getProductsByInput(text: string): Promise<void> {
+
         if (text.length == 0) {
             this._emptySearchSubject.next();
             return;
         }
 
-        // if (this._searchItems.hasOwnProperty(text) && !this.isLoadMore) {
-        //     this.isEmptyResult = false;
-        //     this._foodItemList = this._searchItems[text];
-        //     console.log(text);
-        //     console.log(this._searchItems[text]);
-            
-        //     this._foodSearchSubject.next(this._searchItems[text]);
-        //     return;
-        // }
+        const productWrapper: SearchProduct = this._searchProducts.find(t => t.TextInput === text);
 
-        if (!this.isLoadMore) {
-            this.isLassThanMaxProducts = false;
-            this.initIndexForMoreItems();
+        // means that is new input
+        if (!productWrapper) {
+            this.nextRequest = Enums.StateRequest.Start;
+            this.prevRequest = Enums.StateRequest.Start;
         }
 
-        if (this.isLassThanMaxProducts) {
-            this.productContain(text);
+        // means that input alredy search => cache!!!
+        if (productWrapper && !this.isLoadMore) {
+            this.isEmptyResult = false;
+            this._foodItemList = productWrapper.FoodItems;
+            this._foodSearchSubject.next(productWrapper.FoodItems);
             return;
         }
+
+        switch (this.nextRequest) {
+            case Enums.StateRequest.Start:
+                return this.productStart(text);
+
+            case Enums.StateRequest.Contain:
+                return this.productContain(text);
+
+            case Enums.StateRequest.Mongo:
+                return this.productMongo(text);
+
+            default:
+                return this.productStart(text);
+        }
+    }
+
+    private productStart(text: string): Promise<void> {
+        if (!this.isLoadMore)
+            this.initIndexForMoreItems();
 
         const data = {
             start: this.startIndex
@@ -180,15 +190,23 @@ export class CalculatorCaloriesService {
 
             this.isEmptyResult = res.length == 0 ? true : false;
 
+
             if ((this.isLoadMore && res.length < Constants.Products.productStart) || res.length === 0) {
+                this.prevRequest = Enums.StateRequest.Start;
+                this.nextRequest = Enums.StateRequest.Contain;
                 this.productContain(text);
                 return;
             }
 
-
-            this.isLassThanMaxProducts = res.length < Constants.Products.productStart;
-            if (this.isLassThanMaxProducts)
+            if (res.length < Constants.Products.productStart) {
+                this.prevRequest = Enums.StateRequest.Start;
+                this.nextRequest = Enums.StateRequest.Contain;
                 this.initIndexForMoreItems();
+            }
+
+            if (res.length === Constants.Products.productStart)
+                this.prevRequest = Enums.StateRequest.Start;
+
             this.getProductsImages(res, text);
 
         }, (err) => {
@@ -196,20 +214,9 @@ export class CalculatorCaloriesService {
         });
     }
 
-    public productContain(text: string): Promise<void> {
-        if (text.length == 0) {
-            this._emptySearchSubject.next();
-            return;
-        }
-
+    private productContain(text: string): Promise<void> {
         if (!this.isLoadMore) {
-            this.isLassThanMaxProductsContain = false;
             this.initIndexForMoreItems();
-        }
-
-        if (this.isLassThanMaxProductsContain) {
-            this.productMongo(text);
-            return;
         }
 
         const data = {
@@ -228,11 +235,15 @@ export class CalculatorCaloriesService {
                 return;
             }
 
-            this.isProductContainAndNotEmpty = res.length != 0;
 
-            this.isLassThanMaxProductsContain = res.length < Constants.Products.productStart;
-            if (this.isLassThanMaxProductsContain)
+            if (res.length < Constants.Products.productStart) {
+                this.prevRequest = Enums.StateRequest.Contain;
+                this.nextRequest = Enums.StateRequest.Mongo;
                 this.initIndexForMoreItems();
+            }
+
+            if (res.length === Constants.Products.productStart)
+                this.prevRequest = Enums.StateRequest.Contain;
 
             this.getProductsImages(res, text);
         }, (err) => {
@@ -240,26 +251,36 @@ export class CalculatorCaloriesService {
         });
     }
 
-    public productMongo(text: string): Promise<void> {
-        if (text.length == 0) {
-            this._emptySearchSubject.next();
-            return;
-        }
-
-        if (!this.isLoadMore || this.isLassThanMaxProductsContain) {
+    private productMongo(text: string): Promise<void> {
+        if (!this.isLoadMore) {
             this.initIndexForMoreItems();
         }
-    
+
         const data = {
             start: this.startIndex
         }
 
         return this.http.get(Api.Calculator.GetProducMongoDb + text, data, Convert.GetMongoFoodList).then(async (res: Array<FoodItemMongoDb>) => {
+
             this.isEmptyResult = res.length == 0 || res.length < Constants.Products.productStart ? true : false;
+            const prod = this._searchProducts.find(t => t.TextInput === text);
+
             if (res.length === 0) {
-                this._searchItems[text] ? this._foodSearchSubject.next(this._foodItemList) : this._noResult.next();
+                if (prod) {
+                    prod.HaveMoreResult = res.length >= Constants.Products.productStart;
+                    this._foodSearchSubject.next(this._foodItemList)
+                }
+
+                else
+                    this._noResult.next();
                 return;
             }
+
+            if (res.length === Constants.Products.productStart)
+                this.prevRequest = Enums.StateRequest.Mongo;
+
+            if (prod)
+                prod.HaveMoreResult = res.length >= Constants.Products.productStart;
 
             const imageError = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==";
             res.forEach(x => {
@@ -267,17 +288,20 @@ export class CalculatorCaloriesService {
                     + imageError)
             });
 
-            if (this.isLoadMore)
-                this._searchItems[text].push(...res);
+            if (this.isLoadMore) {
+                const newSearchProduct: SearchProduct = this._searchProducts.find(t => t.TextInput === text);
+                newSearchProduct.FoodItems.push(...res);
+            }
+
             else {
-                this._searchItems[text] = res;
+                const newSearchProduct: SearchProduct = new SearchProduct();
+                newSearchProduct.createNewSearchProduct(text, true, res);
+                this._searchProducts.push(newSearchProduct);
                 this._foodItemList = res;
             }
 
             this._foodSearchSubject.next(this._foodItemList);
             return;
-
-
 
         }, (err) => {
             alert('Failed!');
@@ -285,9 +309,9 @@ export class CalculatorCaloriesService {
     }
 
     private getProductsImages(res: Array<FoodItem>, text: string): void {
-        const promises = [];
+        const productImages = [];
         res.forEach(async item => {
-            promises.push(this.http.getImage(Api.Calculator.getImageByCode + `${item.Code}`, {}, Convert.GetImageByCode).then((res: string) => {
+            productImages.push(this.http.getImage(Api.Calculator.getImageByCode + `${item.Code}`, {}, Convert.GetImageByCode).then((res: string) => {
                 item.Image = this._sanitizer.bypassSecurityTrustResourceUrl('data:image/jpg;base64,'
                     + res);
             }, (err) => {
@@ -297,18 +321,21 @@ export class CalculatorCaloriesService {
             }));
         })
 
-        Promise.all(promises).then(() => {
-            if (this.isLoadMore)
-                this._searchItems[text].push(...res);
+        forkJoin(productImages).subscribe(() => {
+            if (this.isLoadMore) {
+                const newSearchProduct: SearchProduct = this._searchProducts.find(t => t.TextInput === text);
+                newSearchProduct.FoodItems.push(...res);
+            }
             else {
-                this._searchItems[text] = res;
+                const newSearchProduct: SearchProduct = new SearchProduct();
+                newSearchProduct.createNewSearchProduct(text, true, res);
+                this._searchProducts.push(newSearchProduct);
                 this._foodItemList = res;
             }
 
             this._foodSearchSubject.next(this._foodItemList);
             return;
-        });
-
+        })
     }
 
     public getItemIngredients(item: FoodItem): Promise<void> {
@@ -332,7 +359,6 @@ export class CalculatorCaloriesService {
 
     public addItemFromMongo(item: FoodItemMongoDb): void {
         const result = this.calculateIngredientsFromMongo(item.Quantity, item);
-
         this._foodTable.push(result);
         this._foodTableSubject.next(this._foodTable);
     }
@@ -353,7 +379,7 @@ export class CalculatorCaloriesService {
     }
 
     private calculateIngredientsFromMongo(quantity: number, item: FoodItemMongoDb): Ingredients {
-        
+
         const newIngredientsForMongo: Ingredients = new Ingredients();
         newIngredientsForMongo.Id = item.Id;
         newIngredientsForMongo.Name = item.Description;
@@ -390,9 +416,11 @@ export class CalculatorCaloriesService {
         this._foodTableSubject.next(this._foodTable);
     }
 
-    getMoreItems() {
-        if (!this.isLassThanMaxProducts || this.isProductContainAndNotEmpty || this.isLassThanMaxProductsContain)
-            this.startIndex += Constants.Products.productStart;
+    public getMoreItems() {
+        if (this.nextRequest != this.prevRequest)
+            return;
+        
+        this.startIndex += Constants.Products.productStart;
     }
 
 }

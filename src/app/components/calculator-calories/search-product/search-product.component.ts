@@ -38,7 +38,8 @@ export class SearchProductComponent implements OnInit, OnDestroy {
             this._isEmptySearch = !res || res.length == 0;
             this.isProccessing = false;
             this.isLoadMore = false;
-            this.isEmptyMoreResult = this._calculatorService.IsEmptyResult;
+            // this.isEmptyMoreResult = this._calculatorService.IsEmptyResult;
+            this.isEmptyMoreResult = !this._calculatorService.productAlreadySearch.find(p => p.TextInput === this._inputText).HaveMoreResult;
 
             this._data$ = of(this._calculatorService.FoodList).pipe(
                 debounceTime(1000),
@@ -91,8 +92,7 @@ export class SearchProductComponent implements OnInit, OnDestroy {
 
             this.isProccessing = true;
             this._calculatorService.IsLoadMore = false;
-
-            this._calculatorService.productStart(event.target.value);
+            this._calculatorService.getProductsByInput(event.target.value);
         });
     }
 
@@ -116,7 +116,7 @@ export class SearchProductComponent implements OnInit, OnDestroy {
         this.isLoadMore = true;
         this._calculatorService.IsLoadMore = true;
         this._calculatorService.getMoreItems();
-        this._calculatorService.productStart(this._inputText);
+        this._calculatorService.getProductsByInput(this._inputText);
     }
 
     onBlur(): void {
